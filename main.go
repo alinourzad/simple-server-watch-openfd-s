@@ -16,6 +16,7 @@ func check_open_fd(pid int) uint64 {
   //get the process id
   // pid := os.Getpid()
   // fmt.Println(pid)
+  //
 
   pid_string := strconv.Itoa(pid)
   // fmt.Println(pid_string)
