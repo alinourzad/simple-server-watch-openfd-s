@@ -1,5 +1,6 @@
 # simple-server-watch-openfd-s
 this application is just a simple server that will not quit when the open file idscriptor reached ..
+**version 1.0.0**
 it simply waits for the other connection to get closed and then allow others to connect to it 
 
 the client test the maximum number of connections in 1 second ... 
