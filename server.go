@@ -90,6 +90,14 @@ func main() {
     // after we get the current openfd we can run accept
     // and run go()
 
+    // TODO: add the flags and change the code properly
+    // get the command line flags :-o
+    // we need flag for running server
+    // we need flag for testing max connection in a second
+    // we need a help flag '-h'
+    // we need a port flag '-port'
+    // idk anything else ?
+
     //start the listener
     l := start_listener()
     defer l.Close()
