@@ -22,7 +22,7 @@ func testConn(i int, x chan bool){
 	x<-true
 }
 
-func main() {
+func client() {
 	x := make(chan bool)
 	log.Println("Running the App ^^")
 	for i := 0; ; i++ {

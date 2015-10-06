@@ -11,8 +11,9 @@ import (
     "net"
 )
 
-// global counter :D
+// global parameter :D
 var counter int = 0
+var help_msg string = `<simple* cleint|server>`
 
 // this func will check for open file discriptor of the pid
 func check_open_fd(pid int) uint64 {
@@ -82,43 +83,44 @@ func main() {
     // the rlimit.cur is the one we need :D
     log.Println("max allowed : ", rlimit.Cur)
 
-    // we shold watch for open fd's
-    // if the openfd's have been reached we are done
-    // and we should not accept any more connection
-    // so start_server() will only launch net.Listen()
-    // function
-    // after we get the current openfd we can run accept
-    // and run go()
-
-    // TODO: add the flags and change the code properly
-    // get the command line flags :-o
-    // we need flag for running server
-    // we need flag for testing max connection in a second
-    // we need a help flag '-h'
-    // we need a port flag '-port'
-    // idk anything else ?
-
-    //start the listener
-    l := start_listener()
-    defer l.Close()
-    log.Println("the listener started ")
-
-    // now we need to accept the comming req
-    // but B4 that we need to check for openfd's
-    for {
-        // refresh the number of openfd's
-        nofile = check_open_fd(pid)
-        // log.Printf("the new number of openfd's %d\n", nofile)
-        // check them ?
-        if rlimit.Cur > nofile {
-            // if no problem accept the new connection
-            c, err := l.Accept()
-            if err != nil {
-                log.Fatal("l.Accept " , err)
-            }
-            // defer c.Close()
-
-            go handleConn(c)
-        }
+    // get what the user need
+    // before that what are the args ?
+    log.Println(os.Args)
+    // os args should not be more than 2 or less than 2
+    if len(os.Args) > 2 || len(os.Args) < 2 {
+        log.Fatal(help_msg)
     }
-}
+    if os.Args[1] == "client" {
+        // if client run test the client
+        client()
+        } else if os.Args[1] == "server" {
+            // if server run the server
+            l := start_listener()
+            defer l.Close()
+            log.Println("the listener started ")
+
+
+            // now we need to accept the comming req
+            // but B4 that we need to check for openfd's
+            for {
+                // refresh the number of openfd's
+                nofile = check_open_fd(pid)
+                // log.Printf("the new number of openfd's %d\n", nofile)
+                // check them ?
+                if rlimit.Cur > nofile {
+                    // if no problem accept the new connection
+                    c, err := l.Accept()
+                    if err != nil {
+                        log.Fatal("l.Accept " , err)
+                    }
+                    // defer c.Close()
+
+                    go handleConn(c)
+                }
+            }
+            } else {
+                log.Println("Worng argument")
+                log.Println("use like this ")
+                log.Println("simple* <client | server>")
+            }
+        }
