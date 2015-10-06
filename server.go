@@ -9,17 +9,15 @@ import (
     "path/filepath"
     "syscall"
     "net"
+    "flag"
 )
 
 // global parameter :D
 var counter int = 0
-var help_msg string = `<simple-server-watch-openfd-s cleint|server>`
+var pid     int
 
 // this func will check for open file discriptor of the pid
-func check_open_fd(pid int) uint64 {
-    //get the process id
-    // pid := os.Getpid()
-    // fmt.Println(pid)
+func check_open_fd() uint64 {
 
     pid_string := strconv.Itoa(pid)
     // fmt.Println(pid_string)
@@ -37,8 +35,6 @@ func check_open_fd(pid int) uint64 {
         log.Fatal( "L:41 | filepath.Glob | ", err )
     }
 
-    // log.Println("contents: ", contents)
-
     return uint64(len(contents))
 }
 
@@ -53,6 +49,7 @@ func handleConn(c net.Conn) {
 
 // this function will start listener
 func start_listener() net.Listener {
+    // TODO: try to get port from user
     l, err := net.Listen("tcp", ":9999")
     if err != nil {
         log.Fatal("net.Listen | ", err)
@@ -61,6 +58,14 @@ func start_listener() net.Listener {
 }
 
 func server_func() {
+
+    // check for max_allowed ?
+    var rlimit syscall.Rlimit
+    err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rlimit)
+    if err != nil {
+        log.Fatal( "syscall.Getrlimit | ", err )
+    }
+
     // if server run the server
     l := start_listener()
     defer l.Close()
@@ -70,7 +75,7 @@ func server_func() {
     // but B4 that we need to check for openfd's
     for {
         // refresh the number of openfd's
-        nofile = check_open_fd(pid)
+        nofile := check_open_fd()
         // log.Printf("the new number of openfd's %d\n", nofile)
         // check them ?
         if rlimit.Cur > nofile {
@@ -88,42 +93,29 @@ func server_func() {
 
 // this is the main function
 func main() {
+    // get pid of this app
+    pid = os.Getpid()
 
-    // initialize
-    pid := os.Getpid()
+    // TODO: add the flags needed ?
+    server_pbool := flag.Bool("server", false, "for running as sever")
+    client_pbool := flag.Bool("client", false, "for testing the server")
 
-    // first let's start the server
-    // but before that we need to watch the open fd's
-    // we have to check the folder /proc/$PID/fd
-    // and count the links there
-    // so lets check the open fd's
-    nofile := check_open_fd(pid)
+    // parse the flags
+    // but remember to add the flags before this
+    flag.Parse()
 
-    // check for max_allowed ?
-    var rlimit syscall.Rlimit
-    err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rlimit)
-    if err != nil {
-        log.Fatal( "syscall.Getrlimit | ", err )
+    // we need to know if we should run as server or client
+    if flag.NFlag() != 1 {
+        flag.Usage()
+        os.Exit(1)
     }
-
-    // the rlimit.cur is the one we need :D
-    log.Println("max allowed : ", rlimit.Cur)
-
-    // get what the user need
-    // before that what are the args ?
-    log.Println(os.Args)
-    // os args should not be more than 2 or less than 2
-    if len(os.Args) > 2 || len(os.Args) < 2 {
-        log.Fatal(help_msg)
-    }
-    if os.Args[1] == "client" {
+    if *client_pbool {
         // if client , run test the client
         client()
-    } else if os.Args[1] == "server" {
+    } else if *server_pbool {
         server_func()
     } else {
-        log.Println("Worng argument")
-        log.Println("use like this ")
-        log.Println("simple* <client | server>")
+        flag.Usage()
+        os.Exit(1)
     }
 }
