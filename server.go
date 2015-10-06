@@ -13,7 +13,7 @@ import (
 
 // global parameter :D
 var counter int = 0
-var help_msg string = `<simple* cleint|server>`
+var help_msg string = `<simple-server-watch-openfd-s cleint|server>`
 
 // this func will check for open file discriptor of the pid
 func check_open_fd(pid int) uint64 {
@@ -60,6 +60,32 @@ func start_listener() net.Listener {
     return l
 }
 
+func server_func() {
+    // if server run the server
+    l := start_listener()
+    defer l.Close()
+    log.Println("the listener started ")
+
+    // now we need to accept the comming req
+    // but B4 that we need to check for openfd's
+    for {
+        // refresh the number of openfd's
+        nofile = check_open_fd(pid)
+        // log.Printf("the new number of openfd's %d\n", nofile)
+        // check them ?
+        if rlimit.Cur > nofile {
+            // if no problem accept the new connection
+            c, err := l.Accept()
+            if err != nil {
+                log.Fatal("l.Accept " , err)
+            }
+            // defer c.Close()
+
+            go handleConn(c)
+        }
+    }
+}
+
 // this is the main function
 func main() {
 
@@ -91,36 +117,13 @@ func main() {
         log.Fatal(help_msg)
     }
     if os.Args[1] == "client" {
-        // if client run test the client
+        // if client , run test the client
         client()
-        } else if os.Args[1] == "server" {
-            // if server run the server
-            l := start_listener()
-            defer l.Close()
-            log.Println("the listener started ")
-
-
-            // now we need to accept the comming req
-            // but B4 that we need to check for openfd's
-            for {
-                // refresh the number of openfd's
-                nofile = check_open_fd(pid)
-                // log.Printf("the new number of openfd's %d\n", nofile)
-                // check them ?
-                if rlimit.Cur > nofile {
-                    // if no problem accept the new connection
-                    c, err := l.Accept()
-                    if err != nil {
-                        log.Fatal("l.Accept " , err)
-                    }
-                    // defer c.Close()
-
-                    go handleConn(c)
-                }
-            }
-            } else {
-                log.Println("Worng argument")
-                log.Println("use like this ")
-                log.Println("simple* <client | server>")
-            }
-        }
+    } else if os.Args[1] == "server" {
+        server_func()
+    } else {
+        log.Println("Worng argument")
+        log.Println("use like this ")
+        log.Println("simple* <client | server>")
+    }
+}
