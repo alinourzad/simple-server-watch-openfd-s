@@ -26,7 +26,7 @@ func client() {
 	x := make(chan bool)
 	log.Println("Running the App ^^")
 	for i := 0; ; i++ {
-		go testConn(i,x)
+		go testConn(i, x)
 		<-x
 	}
 }
