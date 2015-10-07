@@ -10,9 +10,10 @@ import (
 	// "encoding/gob"
 )
 
-func testConn(i int, x chan bool){
+func testConn(i int, x chan bool, address string, port string){
 	log.Println("running : ", "---" , i, "---")
-	c, err := net.Dial("tcp", "localhost:9999")
+	ip_port := address + ":" + port
+	c, err := net.Dial("tcp", ip_port)
 	if err != nil {
 		log.Fatal("net.dial | ", err)
 	}
@@ -22,11 +23,11 @@ func testConn(i int, x chan bool){
 	x<-true
 }
 
-func client() {
+func client(address *string, port_pstring *string) {
 	x := make(chan bool)
 	log.Println("Running the App ^^")
 	for i := 0; ; i++ {
-		go testConn(i,x)
+		go testConn(i, x, *address, *port_pstring)
 		<-x
 	}
 }
