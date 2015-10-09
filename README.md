@@ -5,10 +5,14 @@
 How to Install
 ==============
 simply switch to directory where you clone this git and execute 
+
 ` go build `
+
 
 How to Run
 ==========
 if you run
+
 ` simple-* --help ` 
+
 it will tell you what you should do :D
