@@ -98,10 +98,14 @@ func main() {
     pid = os.Getpid()
 
     // add the flags needed ?
-    server_pbool := flag.Bool("server", false, "for running as sever only one of client or server must be present.")
-    client_pbool := flag.Bool("client", false, "for testing the server. only one of client or server must be present.")
-    port_pstring := flag.String("port", "9999", "the port we should listen on")
-    address_pstring := flag.String("addr", "localhost", "the address client should cnnect to.")
+    server_pbool := flag.Bool("server", false,
+        "for running as sever only one of client or server must be present.")
+    client_pbool := flag.Bool("client", false,
+        "for testing the server. only one of client or server must be present.")
+    port_pstring := flag.String("port", "9999",
+        "the port we should listen on")
+    address_pstring := flag.String("addr", "localhost",
+        "the address client should cnnect to.")
 
     // parse the flags
     // but remember to add the flags before this
