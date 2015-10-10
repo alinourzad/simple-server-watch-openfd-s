@@ -13,6 +13,6 @@ How to Run
 ==========
 if you run
 
-` simple-* --help ` 
+` simple-* -help ` 
 
 it will tell you what you should do :D
