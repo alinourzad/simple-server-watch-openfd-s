@@ -47,7 +47,6 @@ func handleConn(c net.Conn) {
 
 // this function will start listener
 func start_listener(user_port string) net.Listener {
-    // TODO: try to get port from user
 
     var port string = ":" + user_port
 
