@@ -38,10 +38,15 @@ func check_open_fd() uint64 {
 
 //this func will handle the new connection and the stream they have
 func handleConn(c net.Conn) {
+    var data []byte
     counter++
     log.Println(c.RemoteAddr())
     log.Println(c.LocalAddr())
     log.Println("-----", counter, "-----")
+    log.Println()
+    c.Read(data)
+    analyze_iso_msg(data)
+    log.Printf("\n\n")
     defer c.Close()
 }
 
@@ -69,7 +74,7 @@ func server_func(port *string) {
     // if server run the server
     l := start_listener(*port)
     defer l.Close()
-    log.Println("the listener started ")
+    log.Println("the listener started on port " + *port )
 
     // now we need to accept the comming req
     // but B4 that we need to check for openfd's
